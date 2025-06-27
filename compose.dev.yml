@@ -27,7 +27,7 @@ services:
   # Spring Boot Backend
   backend:
     build:
-      context: ./backend
+      context: ./Backend
       dockerfile: Dockerfile.dev
     container_name: schoolranking-backend-dev
     restart: unless-stopped
@@ -59,7 +59,7 @@ services:
   # React Frontend
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
       dockerfile: Dockerfile.dev
     container_name: schoolranking-frontend-dev
     restart: unless-stopped
