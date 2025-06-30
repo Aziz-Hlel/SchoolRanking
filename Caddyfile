@@ -1,0 +1,112 @@
+# Caddy configuration for staging environment
+{$DOMAIN:staging.schoolranking.local} {
+    # Enable automatic HTTPS
+    tls internal
+
+    # Security headers - essential for any public-facing application
+    header {
+        # Prevent clickjacking
+        X-Frame-Options DENY
+        # Prevent MIME type sniffing
+        X-Content-Type-Options nosniff
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Strict transport security (HTTPS only)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Content Security Policy (adjust based on your needs)
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'"
+        # Remove server information
+        -Server
+    }
+
+    # API routes - proxy to Spring Boot backend
+    handle /api/* {
+        reverse_proxy backend:8080 {
+            # Health checking
+            health_uri /actuator/health
+            health_interval 30s
+            health_timeout 10s
+            
+            # Load balancing (if you scale to multiple backend instances)
+            lb_policy round_robin
+            
+            # Request/response modifications for API
+            header_up Host {upstream_hostport}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            
+            # Timeout settings
+            transport http {
+                dial_timeout 5s
+                response_header_timeout 30s
+            }
+        }
+    }
+
+    # Actuator endpoints for monitoring (restricted access in staging)
+    handle /actuator/* {
+        # Only allow health and info endpoints in staging
+        @allowed_endpoints path /actuator/health /actuator/info
+        handle @allowed_endpoints {
+            reverse_proxy backend:8080
+        }
+        # Return 404 for other actuator endpoints
+        respond 404
+    }
+
+    # Static assets with aggressive caching
+    handle /assets/* {
+        reverse_proxy frontend:80 {
+            header_up Host {upstream_hostport}
+        }
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # Main application - proxy to React frontend
+    handle {
+        reverse_proxy frontend:80 {
+            header_up Host {upstream_hostport}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+        
+        # SPA fallback for client-side routing
+        @spa_routes {
+            not path /api/*
+            not path /actuator/*
+            not path /assets/*
+            file {
+                try_files {path} /index.html
+            }
+        }
+    }
+
+    # Logging for staging environment
+    log {
+        output file /var/log/caddy/staging.log {
+            roll_size 10MB
+            roll_keep 10
+        }
+        format json
+        level INFO
+    }
+
+    # Enable compression
+    encode {
+        gzip 6
+        zstd
+    }
+
+    # Rate limiting for staging (more lenient than production)
+    rate_limit {
+        zone staging {
+            key {remote_host}
+            events 100
+            window 1m
+        }
+    }
+}

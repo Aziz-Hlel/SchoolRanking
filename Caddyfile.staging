@@ -1,0 +1,30 @@
+localhost:8443 {
+
+    root * /srv
+
+    log {
+        output stderr
+        format console
+        level DEBUG
+    }
+
+    @api path /api/*
+    reverse_proxy @api backend:8080
+
+    @spa {
+        not path /api/*
+        not file
+    }
+    rewrite @spa /index.html
+
+    file_server
+
+    header {
+        Cache-Control "no-store"
+    }
+
+    encode gzip
+
+    tls internal
+	
+}

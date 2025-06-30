@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Database Service - Production-ready configuration
+  db:
+    image: postgres:15-alpine
+    container_name: schoolranking-db-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${STAGE__POSTGRES_DB}
+      POSTGRES_USER: ${STAGE__POSTGRES_USER}
+      POSTGRES_PASSWORD: ${STAGE__POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data-staging:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${STAGE__POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # Security: Don't expose database port externally
+    # ports are only accessible within the Docker network
+
+  # Spring Boot Backend - Staging configuration
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.stage
+      # target: production
+    container_name: schoolranking-backend-staging
+    restart: unless-stopped
+    environment:
+      PROFILES_ACTIVE: ${STAGE__SPRING_PROFILES_ACTIVE}
+      DATASOURCE_URL: ${STAGE__SPRING_DATASOURCE_URL}
+      DATASOURCE_USERNAME: ${STAGE__POSTGRES_USER}
+      DATASOURCE_PASSWORD: ${STAGE__POSTGRES_PASSWORD}
+      SERVER_PORT: ${STAGE__SERVER_PORT}
+      JAVA_OPTS: -Xmx1g -Xms512m
+    expose:
+      - "8080"
+    volumes:
+      # Only mount logs for monitoring - no source code mounting
+      - ./logs/backend:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+  # React Frontend - Built for staging
+  proxy:
+    container_name: proxy-stage
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.stage
+      args:
+        VITE_API_URL: ${STAGE__VITE_API_URL}
+        VITE_NODE_ENV: ${STAGE__VITE_NODE_ENV}
+
+
+    ports:
+      - 8443:8443
+    volumes:
+      - ./Caddyfile.staging:/etc/caddy/Caddyfile:ro
+      - caddy-data-staging:/data
+      - caddy-config-staging:/config
+
+
+    healthcheck:
+      test: ["CMD", "curl", "-fk", "https://localhost:8443/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+
+    restart: unless-stopped
+
+    networks:
+      - app-network
+    environment:
+      - DOMAIN=${STAGE__STAGING_DOMAIN}
+
+networks:
+  app-network:
+    driver: bridge
+    # Add network security for staging
+    # driver_opts:
+    #   com.docker.network.bridge.name: schoolranking-staging
+
+volumes:
+  postgres-data-staging:
+    # driver: local
+  caddy-data-staging:
+    # driver: local
+  caddy-config-staging:
+    # driver: local
