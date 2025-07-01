@@ -25,23 +25,31 @@ setup: ## Initial setup for new developers
 
 dev: ## Start development environment
 	@echo "$(GREEN)🔧 Starting development environment...$(NC)"
-	@docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+	@docker compose -f compose.dev.yml up --build
 
 dev-detached: ## Start development environment in background
 	@echo "$(GREEN)🔧 Starting development environment (detached)...$(NC)"
-	@docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+	@docker compose -f compose.dev.yml up --build -d
 
+stage: ## Start staging environment
+	@echo "$(GREEN)🔧 Starting staging environment...$(NC)"
+	@docker compose -f compose.stage.yml up --build
+
+stage-detached: ## Start staging environment in background
+	@echo "$(GREEN)🔧 Starting staging environment (detached)...$(NC)"
+	@docker compose -f compose.stage.yml up --build -d
+	
 stop: ## Stop all services
 	@echo "$(YELLOW)⏹️  Stopping services...$(NC)"
-	@docker-compose down
+	@docker compose down
 
 restart: ## Restart all services
 	@echo "$(YELLOW)🔄 Restarting services...$(NC)"
-	@docker-compose restart
+	@docker compose restart
 
 clean: ## Stop services and remove volumes
 	@echo "$(RED)🧹 Cleaning up (this will delete data)...$(NC)"
-	@docker-compose down -v
+	@docker compose down -v
 	@docker system prune -f
 
 logs: ## Show logs for all services

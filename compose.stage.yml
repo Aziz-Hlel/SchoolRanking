@@ -1,17 +1,16 @@
-version: '3.8'
 
 services:
   # Database Service - Production-ready configuration
   db:
     image: postgres:15-alpine
-    container_name: schoolranking-db-staging
+    container_name: schoolranking-db-stage
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${STAGE__POSTGRES_DB}
       POSTGRES_USER: ${STAGE__POSTGRES_USER}
       POSTGRES_PASSWORD: ${STAGE__POSTGRES_PASSWORD}
     volumes:
-      - postgres-data-staging:/var/lib/postgresql/data
+      - postgres-data-stage:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d:ro
     networks:
       - app-network
@@ -30,7 +29,7 @@ services:
       context: ./Backend
       dockerfile: Dockerfile.stage
       # target: production
-    container_name: schoolranking-backend-staging
+    container_name: schoolranking-backend-stage
     restart: unless-stopped
     environment:
       PROFILES_ACTIVE: ${STAGE__SPRING_PROFILES_ACTIVE}
@@ -70,9 +69,9 @@ services:
     ports:
       - 8443:8443
     volumes:
-      - ./Caddyfile.staging:/etc/caddy/Caddyfile:ro
-      - caddy-data-staging:/data
-      - caddy-config-staging:/config
+      - ./Caddyfile.stage:/etc/caddy/Caddyfile:ro
+      - caddy-data-stage:/data
+      - caddy-config-stage:/config
 
 
     healthcheck:
@@ -98,9 +97,9 @@ networks:
     #   com.docker.network.bridge.name: schoolranking-staging
 
 volumes:
-  postgres-data-staging:
+  postgres-data-stage:
     # driver: local
-  caddy-data-staging:
+  caddy-data-stage:
     # driver: local
-  caddy-config-staging:
+  caddy-config-stage:
     # driver: local

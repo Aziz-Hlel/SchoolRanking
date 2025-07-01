@@ -1,0 +1,21 @@
+{
+    "name": "Fullstack Dev Environment",
+    "dockerComposeFile": "../compose.dev.yml",
+    "service": "frontend",
+    "workspaceFolder": "/workspace",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "ms-vscode.vscode-typescript-next",
+                "vscjava.vscode-java-pack"
+            ]
+        },
+        "settings": {
+            "typescript.tsdk": "Frontend/node_modules/typescript/lib",
+            "java.import.gradle.wrapper.enabled": true
+        }
+    },
+    "postCreateCommand": "cd Frontend && npm install && cd ../Backend && mvn clean install"
+}
