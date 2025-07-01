@@ -1,6 +1,6 @@
-[submodule "SchoolRankingBack"]
-	path = BackEnd
-	url = https://github.com/Aziz-Hlel/SchoolRankingBack.git
 [submodule "SchoolRankingFront"]
 	path = Frontend
 	url = https://github.com/Aziz-Hlel/SchoolRankingFront.git
+[submodule "Backend"]
+	path = Backend
+	url = https://github.com/Aziz-Hlel/SchoolRankingBack.git
