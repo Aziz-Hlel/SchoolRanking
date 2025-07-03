@@ -1,0 +1,119 @@
+# School Ranking Platform - Development Commands
+# Usage: make <command>
+
+.PHONY: help setup dev stop clean logs test deploy
+
+# Colors for output
+GREEN := \033[0;32m]
+YELLOW := \033[1;33m]
+RED := \033[0;31m]
+NC := \033[0m] # No Color
+
+
+FRONTEND_DIR = ./frontend
+BACKEND_DIR = ./backend
+
+
+
+# Default target
+help: ## Show available commands
+	@echo "$(GREEN)School Ranking Platform - Available Commands:$(NC)"
+	@echo ""
+	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ { printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@echo ""
+
+setup: ## Initial setup for new developers
+	@echo "$(GREEN)🚀 Setting up development environment...$(NC)"
+	@chmod +x devops/scripts/*.sh
+	@cp .env.example .env
+	@git submodule update --init --recursive
+	@echo "$(GREEN)✅ Setup complete! Edit .env file and run 'make dev'$(NC)"
+
+docker-dev-up: ## Start development environment
+	@echo "$(GREEN)🔧 Starting development environment...$(NC)"
+	@docker compose -f compose.dev.yml up --build
+
+docker-dev-detached: ## Start development environment in background
+	@echo "$(GREEN)🔧 Starting development environment (detached)...$(NC)"
+	@docker compose -f compose.dev.yml up --build -d
+
+docker-dev-stage: ## Start staging environment
+	@echo "$(GREEN)🔧 Starting staging environment...$(NC)"
+	@docker compose -f compose.stage.yml up --build
+
+docker-dev-stage-detached: ## Start staging environment in background
+	@echo "$(GREEN)🔧 Starting staging environment (detached)...$(NC)"
+	@docker compose -f compose.stage.yml up --build -d
+	
+docker-down: ## Stop all services
+	@echo "$(YELLOW)⏹️  Stopping services...$(NC)"
+	@docker compose down
+
+docker-restart: ## Restart all services
+	@echo "$(YELLOW)🔄 Restarting services...$(NC)"
+	@docker compose restart
+
+clean: ## Stop services and remove volumes
+	@echo "$(RED)🧹 Cleaning up (this will delete data)...$(NC)"
+	@docker compose down -v
+	@docker system prune -f
+
+logs: ## Show logs for all services
+	@docker-compose logs -f
+
+logs-backend: ## Show backend logs
+	@docker-compose logs -f backend
+
+logs-frontend: ## Show frontend logs  
+	@docker-compose logs -f frontend
+
+logs-db: ## Show database logs
+	@docker-compose logs -f db
+
+docker-shell-backend: ## Access backend container shell
+	@docker-compose exec backend bash
+
+docker-shell-frontend: ## Access frontend container shell
+	@docker-compose exec frontend sh
+
+docker-shell-db: ## Access database shell
+	@docker-compose exec db psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-schoolranking_dev}
+
+test: ## Run all tests
+	@echo "$(GREEN)🧪 Running tests...$(NC)"
+	@docker-compose exec backend mvn test
+	@echo "$(GREEN)✅ Backend tests completed$(NC)"
+
+build: ## Build all services
+	@echo "$(GREEN)🔨 Building services...$(NC)"
+	@docker-compose build
+
+pull: ## Pull latest changes from submodules
+	@echo "$(GREEN)📥 Pulling latest changes...$(NC)"
+	@git submodule update --remote --merge
+
+status: ## Show git status for all repos
+	@echo "$(GREEN)📊 Repository Status:$(NC)"
+	@echo "$(YELLOW)Main repo:$(NC)"
+	@git status --short
+	@echo "$(YELLOW)Backend:$(NC)"
+	@cd backend && git status --short
+	@echo "$(YELLOW)Frontend:$(NC)"
+	@cd frontend && git status --short
+
+backup-db: ## Backup database
+	@echo "$(GREEN)💾 Creating database backup...$(NC)"
+	@docker-compose exec db pg_dump -U ${POSTGRES_USER:-postgres} ${POSTGRES_DB:-schoolranking_dev} > backup_$(shell date +%Y%m%d_%H%M%S).sql
+
+# Production commands (add when ready)
+prod: ## Deploy to production
+	@echo "$(RED)🚀 Production deployment not configured yet$(NC)"
+
+# Development utilities
+fresh: clean setup dev ## Fresh start (clean + setup + dev)
+
+
+
+git-push-backend: ## Push changes to backend repo
+	@echo "$(GREEN)📤 Pushing changes to backend repo...$(NC)
+	@cd backend && git push origin main"

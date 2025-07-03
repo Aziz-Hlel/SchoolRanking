@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${DEV__POSTGRES_USER}
       POSTGRES_PASSWORD: ${DEV__POSTGRES_PASSWORD}
     ports:
-      - 5432:5432
+      - 2345:5432
     volumes:
       - postgres-data-dev:/var/lib/postgresql/data
       # Optional: Add init scripts
@@ -41,8 +41,9 @@ services:
       - "5005:5005"  # Debug port
     volumes:
       # Volume mount for hot reload - critical for development
-      - ./backend/src:/app/src
-      - ./backend/pom.xml:/app/pom.xml
+      - ./Backend/src:/app/src
+      - ./Backend/pom.xml:/app/pom.xml
+      - ./Backend/target:/app/target
       # Maven cache to avoid re-downloading dependencies
       - maven-cache-dev:/root/.m2
     # depends_on:
@@ -67,10 +68,10 @@ services:
       - "5173:5173"
     volumes:
       # Volume mount for hot reload
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/package.json:/app/package.json
-      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./Frontend/src:/app/src
+      - ./Frontend/public:/app/public
+      - ./Frontend/package.json:/app/package.json
+      - ./Frontend/vite.config.ts:/app/vite.config.ts
       # Prevent node_modules from being overwritten
       - /app/node_modules
     environment:
