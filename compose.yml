@@ -27,7 +27,7 @@ services:
   # Spring Boot Backend - Staging configuration
   backend:
     build:
-      context: ./BackEnd
+      context: ./Backend
       dockerfile: Dockerfile
       # target: production
     container_name: schoolranking-backend
