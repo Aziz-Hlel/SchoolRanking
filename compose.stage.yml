@@ -1,4 +1,3 @@
-
 services:
   # Database Service - Production-ready configuration
   db:
@@ -9,6 +8,7 @@ services:
       POSTGRES_DB: ${STAGE__POSTGRES_DB}
       POSTGRES_USER: ${STAGE__POSTGRES_USER}
       POSTGRES_PASSWORD: ${STAGE__POSTGRES_PASSWORD}
+    command: -p ${STAGE__POSTGRES_PORT}  # ✅ override the internal listen port
     volumes:
       - postgres-data-stage:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d:ro
@@ -20,15 +20,15 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    # Security: Don't expose database port externally
-    # ports are only accessible within the Docker network
+  # Security: Don't expose database port externally
+  # ports are only accessible within the Docker network
 
   # Spring Boot Backend - Staging configuration
   backend:
     build:
       context: ./Backend
       dockerfile: Dockerfile.stage
-      # target: production
+    # target: production
     container_name: schoolranking-backend-stage
     restart: unless-stopped
     environment:
@@ -92,14 +92,14 @@ services:
 networks:
   app-network:
     driver: bridge
-    # Add network security for staging
-    # driver_opts:
-    #   com.docker.network.bridge.name: schoolranking-staging
+# Add network security for staging
+# driver_opts:
+#   com.docker.network.bridge.name: schoolranking-staging
 
 volumes:
   postgres-data-stage:
-    # driver: local
+  # driver: local
   caddy-data-stage:
-    # driver: local
+  # driver: local
   caddy-config-stage:
     # driver: local

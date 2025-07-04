@@ -13,7 +13,7 @@ docker-dev-up: ## Start development environment
 
 docker-stage-up : ## Start staging environment
 	@echo "🚀 Starting staging environment..."
-	@docker compose -f compose.stage.yml up
+	@docker compose -f compose.stage.yml up --build
 	@echo "✅ Staging environment started"
 
 docker-up : ## Start production environment

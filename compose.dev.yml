@@ -10,7 +10,9 @@ services:
       POSTGRES_USER: ${DEV__POSTGRES_USER}
       POSTGRES_PASSWORD: ${DEV__POSTGRES_PASSWORD}
     ports:
-      - 2345:5432
+      - "${DEV__POSTGRES_PORT}:${DEV__POSTGRES_PORT}" 
+    command: -p ${DEV__POSTGRES_PORT}  # ✅ override the internal listen port
+
     volumes:
       - postgres-data-dev:/var/lib/postgresql/data
       # Optional: Add init scripts
