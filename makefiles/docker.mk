@@ -3,6 +3,7 @@
 
 
 
+.PHONY: docker-dev-up docker-stage-up docker-up
 
 
 docker-dev-up: ## Start development environment

@@ -70,9 +70,16 @@ git-push-main:  ## Push all repositories
 
 git-pull-all: ## Pull all repositories
 	@echo "⬇️  Pulling all repositories..."
+
+	@echo "🗂️  Pulling root repository..."
+	@git checkout $(DEFAULT_BRANCH)
+	@git pull origin $(DEFAULT_BRANCH)
+
 	@$(MAKE) git-pull-frontend
 	@$(MAKE) git-pull-backend
+
 	@echo "✅ All repositories pulled successfully"
+
 
 git-pull-frontend: ## Pull frontend repository
 	@echo "📱 Pulling frontend..."

@@ -38,8 +38,6 @@ services:
       DATASOURCE_PASSWORD: ${STAGE__POSTGRES_PASSWORD}
       SERVER_PORT: ${STAGE__SERVER_PORT}
       JAVA_OPTS: -Xmx1g -Xms512m
-    expose:
-      - "8080"
     volumes:
       # Only mount logs for monitoring - no source code mounting
       - ./logs/backend:/app/logs
