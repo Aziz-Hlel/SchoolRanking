@@ -21,8 +21,8 @@ else
 fi
 
 # Parse values from .env 
-POSTGRES_CONTAINER_NAME="schoolranking-db-stage"
-BACKEND_CONTAINER_NAME="schoolranking-backend-stage"
+POSTGRES_CONTAINER_NAME="schoolranking-db"
+BACKEND_CONTAINER_NAME="schoolranking-backend"
 POSTGRES_USER="${STAGE__POSTGRES_USER}"
 POSTGRES_DB="${STAGE__POSTGRES_DB}"
 POSTGRES_PORT="${STAGE__POSTGRES_PORT}"

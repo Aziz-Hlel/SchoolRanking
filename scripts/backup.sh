@@ -20,7 +20,7 @@ fi
 
 
 # Parse values from .env 
-POSTGRES_CONTAINER_NAME="schoolranking-db-stage"  #  ? Change if dynamic
+POSTGRES_CONTAINER_NAME="schoolranking-db"  #  ? Change if dynamic
 POSTGRES_USER="${STAGE__POSTGRES_USER}"
 POSTGRES_PASSWORD="${STAGE__POSTGRES_PASSWORD}"
 POSTGRES_DB="${STAGE__POSTGRES_DB}"
