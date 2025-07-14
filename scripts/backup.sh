@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # TODO : in your host shell type : crontab -e
-# TODO : add the line : 0 2 * * * cd /home/ubuntu/ProjectFolderName/scripts && ./backup.sh
+# TODO : add the line : 0 2 * * * /bin/bash /home/ubuntu/ProjectFolderName/scripts/backup.sh >> /home/ubuntu/ProjectFolderName/scripts/backup.log 2>&1
 
+
+
+# This helps when reading logs later.
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting backup..."
 
 
 # Resolve directory of the script, no matter where it's called from
