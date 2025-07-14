@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO : in your host shell type : crontab -e
+# TODO : add the line : 0 2 * * * cd /home/ubuntu/ProjectFolderName/scripts && ./backup.sh
+
+
 
 # Resolve directory of the script, no matter where it's called from
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,10 +25,10 @@ fi
 
 # Parse values from .env 
 POSTGRES_CONTAINER_NAME="schoolranking-db"  #  ? Change if dynamic
-POSTGRES_USER="${STAGE__POSTGRES_USER}"
-POSTGRES_PASSWORD="${STAGE__POSTGRES_PASSWORD}"
-POSTGRES_DB="${STAGE__POSTGRES_DB}"
-POSTGRES_PORT="${STAGE__POSTGRES_PORT}"
+POSTGRES_USER="${PROD__POSTGRES_USER}"
+POSTGRES_PASSWORD="${PROD__POSTGRES_PASSWORD}"
+POSTGRES_DB="${PROD__POSTGRES_DB}"
+POSTGRES_PORT="${PROD__POSTGRES_PORT}"
 BACKUP_DIR="./backups"
 DATE=$(date +%Y%m%d)
 BACKUP_FILE="backup_${DATE}.sql.gz"

@@ -23,14 +23,14 @@ fi
 # Parse values from .env 
 POSTGRES_CONTAINER_NAME="schoolranking-db"
 BACKEND_CONTAINER_NAME="schoolranking-backend"
-POSTGRES_USER="${STAGE__POSTGRES_USER}"
-POSTGRES_DB="${STAGE__POSTGRES_DB}"
-POSTGRES_PORT="${STAGE__POSTGRES_PORT}"
+POSTGRES_USER="${PROD__POSTGRES_USER}"
+POSTGRES_DB="${PROD__POSTGRES_DB}"
+POSTGRES_PORT="${PROD__POSTGRES_PORT}"
 BACKUP_DIR="./backups"
 
 # Validate required environment variables
 if [ -z "$POSTGRES_USER" ] || [ -z "$POSTGRES_DB" ] || [ -z "$POSTGRES_PORT" ]; then
-    echo "❌ Missing required environment variables: STAGE__POSTGRES_USER, STAGE__POSTGRES_DB, or STAGE__POSTGRES_PORT"
+    echo "❌ Missing required environment variables: PROD__POSTGRES_USER, PROD__POSTGRES_DB, or PROD__POSTGRES_PORT"
     exit 1
 fi
 
@@ -99,7 +99,7 @@ echo "🔄 Restoring database..."
 
 # Step 2: Terminate active connections
 echo "Disconnecting active users..."
-docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
+docker exec -e PGPASSWORD="$PROD__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
   -h localhost \
   -p "$POSTGRES_PORT" \
   -U "$POSTGRES_USER" \
@@ -108,14 +108,14 @@ docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NA
 
 # Step 3: Drop and recreate database
 echo "Recreating database..."
-docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
+docker exec -e PGPASSWORD="$PROD__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
   -h localhost \
   -p "$POSTGRES_PORT" \
   -U "$POSTGRES_USER" \
   -d postgres \
   -c "DROP DATABASE IF EXISTS $POSTGRES_DB;"
 
-docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
+docker exec -e PGPASSWORD="$PROD__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
   -h localhost \
   -p "$POSTGRES_PORT" \
   -U "$POSTGRES_USER" \
@@ -124,7 +124,7 @@ docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NA
 
 # Step 4: Restore the backup
 echo "Restoring backup data..."
-gunzip -c "$BACKUP_DIR/$BACKUP_FILE" | docker exec -e PGPASSWORD="$STAGE__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
+gunzip -c "$BACKUP_DIR/$BACKUP_FILE" | docker exec -e PGPASSWORD="$PROD__POSTGRES_PASSWORD" -i "$POSTGRES_CONTAINER_NAME" psql \
   -h localhost \
   -p "$POSTGRES_PORT" \
   -U "$POSTGRES_USER" \
